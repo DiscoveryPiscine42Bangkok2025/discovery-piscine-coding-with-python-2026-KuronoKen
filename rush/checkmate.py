@@ -1,165 +1,220 @@
 notKing = ["P","Q","B","R"]
 
-def pawn(pawnPos:tuple,boardList:list):
+def pawn(pawnPos:tuple, boardList:list):
+
+    # .x.x.
+    # ..P..
+    # .....
+
     inCheck = False
-    pawnLeftPos = (pawnPos[0]-1,pawnPos[1]-1)
-    pawnRightPos = (pawnPos[0]+1,pawnPos[1]-1)
-    if pawnLeftPos[0] >= 0 and pawnLeftPos[1] >= 0:
-        if boardList[pawnLeftPos[1]][pawnLeftPos[0]] == "K":
+
+    # ชี้ตำแหน่งของ Pawn ที่สามารถโจมตีได้ (left-up, right-up)
+    leftAttackPos = (pawnPos[0]-1, pawnPos[1]-1)
+    rightAttackPos = (pawnPos[0]+1, pawnPos[1]-1)
+
+    # เช็คตัวซ้ายให้ไม่อยู่เกินกระดาน
+    if leftAttackPos[0] >= 0 and leftAttackPos[1] >= 0:
+        if boardList[leftAttackPos[1]][leftAttackPos[0]] == "K": #boardList[row][col] == K มั้ย
             inCheck = True
-    if pawnRightPos[0] < len(boardList) and pawnRightPos[1] >= 0:
-        if boardList[pawnRightPos[1]][pawnRightPos[0]] == "K":
+
+    # เช็คตัวขวาให้ไม่อยู่เกินกระดาน
+    if rightAttackPos[0] < len(boardList) and rightAttackPos[1] >= 0:
+        if boardList[rightAttackPos[1]][rightAttackPos[0]] == "K": #boardList[row][col] == K มั้ย
             inCheck = True
 
     return inCheck
 
 def rook(rookPos:tuple,boardList:list):
+
+    # ...x...
+    # ...x...
+    # xxxRxxx
+    # ...x...
+    # ...x...
     inCheck = False
-    widthAndHeight = len(boardList)
+
+    # ขนาดกระดาน square
+    boardSize = len(boardList)
 
     #Left
-    finding = (rookPos[0]-1,rookPos[1])
-    while finding[0] >= 0:
-        found = boardList[finding[1]][finding[0]]
-        if found in notKing:
+    currentPos = (rookPos[0]-1,rookPos[1]) #เริ่มจากทางซ้ายของ rook
+
+    #loop เรื่อยๆจนกว่าจะสุดกระดาน
+    while currentPos[0] >= 0:
+        currentPiece = boardList[currentPos[1]][currentPos[0]]
+        if currentPiece in notKing: # ถ้าเจอตัวอื่นบัง
             break
-        if found == "K":
+        if currentPiece == "K":
             inCheck = True
             break
-        finding = (finding[0]-1,finding[1])
+        currentPos = (currentPos[0]-1,currentPos[1]) #ถ้าไม่โดนบังหรือยังไม่เจอ King ขยับซ้ายอีก
     
     if inCheck:
         return inCheck
 
     #Right
-    finding = (rookPos[0]+1,rookPos[1])
-    while finding[0] < widthAndHeight:
-        found = boardList[finding[1]][finding[0]]
-        if found in notKing:
+    currentPos = (rookPos[0]+1,rookPos[1]) #เริ่มจากทางขวาของ rook
+    
+    #loop เรื่อยๆจนกว่าจะสุดกระดาน
+    while currentPos[0] < boardSize:
+        currentPiece = boardList[currentPos[1]][currentPos[0]]
+        if currentPiece in notKing: # ถ้าเจอตัวอื่นบัง
             break
-        if found == "K":
+        if currentPiece == "K":
             inCheck = True
             break
-        finding = (finding[0]+1,finding[1])
+        currentPos = (currentPos[0]+1,currentPos[1]) #ถ้าไม่โดนบังหรือยังไม่เจอ King ขยับขวาอีก
 
     if inCheck:
         return inCheck
 
     #Down
-    finding = (rookPos[0],rookPos[1]+1)
-    while finding[1] < widthAndHeight:
-        found = boardList[finding[1]][finding[0]]
-        if found in notKing:
+    currentPos = (rookPos[0],rookPos[1]+1) #เริ่มจากข้างล่างของ rook
+
+    #loop เรื่อยๆจนกว่าจะสุดกระดาน
+    while currentPos[1] < boardSize:
+        currentPiece = boardList[currentPos[1]][currentPos[0]]
+        if currentPiece in notKing: # ถ้าเจอตัวอื่นบัง
             break
-        if found == "K":
+        if currentPiece == "K":
             inCheck = True
             break
-        finding = (finding[0],finding[1]+1)
+        currentPos = (currentPos[0],currentPos[1]+1) #ถ้าไม่โดนบังหรือยังไม่เจอ King ขยับลงอีก
 
     if inCheck:
         return inCheck
     
     #Up
-    finding = (rookPos[0],rookPos[1]-1)
-    while finding[1] >= 0:
-        found = boardList[finding[1]][finding[0]]
-        if found in notKing:
+    currentPos = (rookPos[0],rookPos[1]-1) #เริ่มจากข้างบนของ rook
+
+    #loop เรื่อยๆจนกว่าจะสุดกระดาน
+    while currentPos[1] >= 0:
+        currentPiece = boardList[currentPos[1]][currentPos[0]]
+        if currentPiece in notKing: # ถ้าเจอตัวอื่นบัง
             break
-        if found == "K":
+        if currentPiece == "K":
             inCheck = True
             break
-        finding = (finding[0],finding[1]-1)
+        currentPos = (currentPos[0],currentPos[1]-1) #ถ้าไม่โดนบังหรือยังไม่เจอ King ขยับขึ้นอีก
 
     return inCheck
 
 def bishop(bishopPos:tuple, boardList:list):
+
+    #x...x
+    #.x.x.
+    #..B..
+    #.x.x.
+    #x...x
+
     #left-up
-    finding = (bishopPos[0]-1,bishopPos[1]-1)
-    while finding[0] >= 0 and finding[1] >= 0:
-        found = boardList[finding[1]][finding[0]]
-        if found == "K":
+    currentPos = (bishopPos[0]-1,bishopPos[1]-1) #เริ่มเช็คจากช่องซ้ายบน (เหมือนกับ pawn)
+
+    #เช็คว่าสุดกระดานยัง
+    while currentPos[0] >= 0 and currentPos[1] >= 0:
+        piece = boardList[currentPos[1]][currentPos[0]] #ดูหมากใน currentPos
+        if piece == "K":
             return True
-        elif found in notKing:
+        elif piece in notKing:
             break
-        finding = (finding[0]-1,finding[1]-1)
+        currentPos = (currentPos[0]-1,currentPos[1]-1) #เขยิบขึ้นบนซ้าย
 
     #right-up
-    finding = (bishopPos[0]+1,bishopPos[1]-1)
-    while finding[0] <= len(boardList[0])-1 and finding[1] >= 0:
-        found = boardList[finding[1]][finding[0]]
-        if found == "K":
+    currentPos = (bishopPos[0]+1,bishopPos[1]-1) #เริ่มเช็คจากช่องขวาบน (เหมือนกับ pawn)
+
+    #เช็คว่าสุดกระดานยัง
+    while currentPos[0] <= len(boardList[0])-1 and currentPos[1] >= 0:
+        piece = boardList[currentPos[1]][currentPos[0]]
+        if piece == "K":
             return True
-        elif found in notKing:
+        elif piece in notKing:
             break
-        finding = (finding[0]+1,finding[1]-1)
+        currentPos = (currentPos[0]+1,currentPos[1]-1) #เขยิบขึ้นบนขวา
 
     #left-down
-    finding = (bishopPos[0]-1,bishopPos[1]+1)
-    while finding[0] >= 0 and finding[1] <= len(boardList)-1 :
-        found = boardList[finding[1]][finding[0]]
-        if found == "K":
+    currentPos = (bishopPos[0]-1,bishopPos[1]+1) #เริ่มเช็คจากช่องซ้ายล่าง
+
+    #เช็คว่าสุดกระดานยัง
+    while currentPos[0] >= 0 and currentPos[1] <= len(boardList)-1 :
+        piece = boardList[currentPos[1]][currentPos[0]]
+        if piece == "K":
             return True
-        elif found in notKing:
+        elif piece in notKing:
             break
-        finding = (finding[0]-1,finding[1]+1)
+        currentPos = (currentPos[0]-1,currentPos[1]+1) #เขยิบลงซ้ายล่าง
 
     #right-down
-    finding = (bishopPos[0]+1,bishopPos[1]+1)
-    while finding[0] <= len(boardList[0])-1 and finding[1] <= len(boardList)-1 :
-        found = boardList[finding[1]][finding[0]]
-        if found == "K":
+    currentPos = (bishopPos[0]+1,bishopPos[1]+1) #เริ่มเช็คจากช่องขวาล่าง
+
+    #เช็คว่าสุดกระดานยัง
+    while currentPos[0] <= len(boardList[0])-1 and currentPos[1] <= len(boardList)-1 :
+        piece = boardList[currentPos[1]][currentPos[0]]
+        if piece == "K":
             return True
-        elif found in notKing:
+        elif piece in notKing:
             break
-        finding = (finding[0]+1,finding[1]+1)
-    return False
+        currentPos = (currentPos[0]+1,currentPos[1]+1) #เขยิบลงขวาล่าง
+
+    return False #ถ้าไม่ check เจอ king
 
 def checkmate(board:str):
 
+    # check ว่า มีข้อมูลเข้ามาหรือไม่ ถ้าไม่จะแสดง There is no board
     if not board:
         print("There is no board.")
+        return
     
+    #แปลงให้ตัวอักษรที่เข้ามาเป็นตัวพิมพ์ใหญ่ทั้งหมด และ กันไม่ให้ใส่ช่องว่าง
     board = board.upper().replace(" ","")
-    boardList = board.split()
-    height = len(boardList)
-    kingCount = 0
-    width = -1
-    inCheck = False
+    boardList = board.split() #เก็บแต่ละแถวเป็น list
+
+    boardHeight = len(boardList) #จำนวน row ของกระดาน
+    kingCount = 0 # นับจำนวน King
+    boardWidth = -1 #ความกว้างของกระดาน ยังไม่ check ให้เป็น -1
+    inCheck = False 
     
-    for i in boardList:
-        localLength = len(i)
-        if width == -1:
-            width = localLength
-        elif width != localLength:
+    #loop เข้าไปใน list boardList
+    for row in boardList:
+        rowLength = len(row) 
+        if boardWidth == -1: #เช็คถ้ายังไม่เคยเช็คความกว้างของ row
+            boardWidth = rowLength
+        elif boardWidth != rowLength: #return ถ้าจำนวนแต่ละ row มีความกว้างไม่เท่ากัน
             print("The board is invalid.")
             return
-        kingCount += i.count("K")
+        
+        kingCount += row.count("K")
     
-    if height != width:
+    if boardHeight != boardWidth: #ต้องเป็น square only
         print("The board is not a square.")
         return
     elif kingCount != 1:
-        if not kingCount:
+        if not kingCount: # ไม่มี king ในกระดาน
             print("No king is found on the board.")
-        else:
+        else: # มี king ในกระดาน > 1
             print("There is multiple king on the board.")
         return
 
-    for lnIndex, line in enumerate(boardList):
-        for colIndex, col in enumerate(line):
+    #loop เช็คทุกช่องของกระดานว่ามีตัวไหนโจมตี King ได้หรือไม่
+    for rowIndex, row in enumerate(boardList):
+        for columnIndex, piece in enumerate(row):
+
             if inCheck:
                 break
-            if col == "P":
-                if pawn((colIndex,lnIndex),boardList):
+
+            if piece == "P":
+                if pawn((columnIndex, rowIndex), boardList):
                     inCheck = True
-            elif col == "R":
-                if rook((colIndex,lnIndex),boardList):
+
+            elif piece == "R":
+                if rook((columnIndex, rowIndex), boardList):
                     inCheck = True
-            elif col == "B":
-                if bishop((colIndex,lnIndex),boardList):
+
+            elif piece == "B":
+                if bishop((columnIndex, rowIndex), boardList):
                     inCheck = True
-            elif col == "Q":
-                if bishop((colIndex,lnIndex),boardList) or rook((colIndex,lnIndex),boardList):
+
+            elif piece == "Q":
+                if bishop((columnIndex, rowIndex), boardList) or rook((columnIndex, rowIndex), boardList):
                     inCheck = True
 
     if inCheck:
